@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-ezq=i+g1nh&bx)gyt=o!eeu6&tjs2-wjmpeoq9x^w5@!_cw^ys
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
+    'assignments',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'blog.context_processors.get_categories',
+                'blog.context_processors.get_social_links',
             ],
         },
     },
