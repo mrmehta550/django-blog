@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'blog',
     'assignments',
     'crispy_forms',
+    'crispy_bootstrap5',
+
+    'dashboards'
 
 
 ]
@@ -140,4 +143,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR /'media'
 
-CRISPY_TEMPLATE_PACK = 'uni_form'
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
