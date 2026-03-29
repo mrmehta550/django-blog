@@ -3,76 +3,292 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}Django Blogs{% endblock %}</title>
 
-    <!-- Bootstrap -->
+    <!-- Bootstrap 4 -->
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
 
-    <!-- Google Font -->
+    <!-- Font Awesome -->
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900">
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <!-- Your CSS -->
-    <link rel="stylesheet"
-          href="{% static 'css/blog.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .blog-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: white;
+            transition: 0.3s;
+        }
+
+        .blog-header.scrolled {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .blog-header-logo {
+            font-size: 24px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .blog-header-logo:hover {
+            color: #ffc107 !important;
+            text-decoration: none;
+        }
+
+        .search-input {
+            border-radius: 30px;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 10px rgba(255,193,7,0.6);
+            border-color: #ffc107;
+        }
+
+        /* Mobile responsive layout */
+
+        @media (max-width: 768px) {
+
+    .blog-header {
+        padding: 6px 8px;
+    }
+
+    /* ❗ Force single line layout */
+    .blog-header .row {
+        display: flex;
+        flex-wrap: nowrap; /* IMPORTANT */
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+    }
+
+    /* Remove bootstrap column behavior */
+    .blog-header .col-md-3,
+    .blog-header .col-md-5,
+    .blog-header .col-md-4 {
+        flex: unset;
+        max-width: unset;
+        width: auto;
+        padding: 0 !important;
+    }
+
+    /* Logo */
+    .blog-header-logo {
+        font-size: 16px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Search */
+    .col-md-5 {
+        flex: 1;              /* take available space */
+        min-width: 0;         /* prevent overflow */
+    }
+
+    .search-input {
+        font-size: 0.75rem;
+        padding: 4px 6px;
+    }
+
+    .search-btn {
+        padding: 4px 7px;
+    }
+
+    /* Buttons */
+    .col-md-4 {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 10;
+
+    }
+
+    .col-md-4 .btn {
+        font-size: 0.65rem;
+        display: flex;
+        padding: 3px 6px;
+        white-space: nowrap;
+        padding: 4px 7px;
+        margin: 0;
+    }
+
+    /* Hide icons on small screens */
+    .col-md-4 .fa {
+        display: none;
+    }
+}
+    </style>
 </head>
 
 <body>
 <div class="container">
 
     <!-- Header -->
-    <header class="blog-header py-3">
-        <div class="row flex-nowrap justify-content-between align-items-center">
-            <div class="col-8 pt-1">
-                <a class="blog-header-logo text-dark" href="/">Blog App</a>
+    <header class="blog-header py-3 border-bottom">
+        <div class="row align-items-center">
+
+            <!-- Logo -->
+            <div class="col-md-3">
+                <a class="blog-header-logo text-dark" href="/">
+                    <i class="fa fa-book"></i> Blog App
+                </a>
             </div>
-            
-            <div class="col-4">
+
+            <!-- Search -->
+            <div class="col-md-5 search-wrapper">
                 <form action="{% url 'search' %}" method="GET">
-                  <div class="input-group">
-                    <input class="form-control" type="text" name="keyword" placeholder="Enter search term..." >
-                    <button type="submit" class="btn btn-primary" id="button-search" type="button">GO! </button>
-                  </div>
+                    <div class="input-group">
+                        <input class="form-control search-input"
+                               type="text"
+                               name="keyword"
+                               value="{{ request.GET.keyword }}"
+                               placeholder="Search articles...">
+                        <div class="input-group-append">
+                            <button type="submit"
+                                    class="btn btn-warning search-btn">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
 
-            <div class="col-4 d-flex justify-content-end align-items-center">
-                {% if not user.is_authenticated%}
-                <a class="btn btn-sm btn-warning" href="{% url 'login' %}">Login</a>
-                <a class="btn btn-sm btn-outline-secondary ml-2" href="{% url 'register' %}">Register</a>
+            <!-- Auth Section -->
+            <div class="col-md-4 text-right auth-buttons">
+
+                {% if not user.is_authenticated %}
+
+                    <a class="btn btn-outline-dark btn-sm mr-2"
+                       href="{% url 'login' %}">
+                        <i class="fa fa-sign-in"></i> Login
+                    </a>
+
+                    <a class="btn btn-warning btn-sm"
+                       href="{% url 'register' %}">
+                        Register
+                    </a>
+
                 {% else %}
-                <span><a href="{% url 'dashboard' %}">Dashboard</a></span>
-                &emsp;
-                <span><a href="{% url 'logout' %}">Logout</a></span>
+
+                    <a class="btn btn-outline-secondary btn-sm mr-2"
+                       href="{% url 'dashboard' %}">
+                        <i class="fa fa-user"></i> Dashboard
+                    </a>
+
+                    <!-- Secure Logout (POST recommended) -->
+                    <form action="{% url 'logout' %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </button>
+                    </form>
+
                 {% endif %}
+
             </div>
+
         </div>
     </header>
 
     <!-- Categories -->
-    <div class="nav-scroller py-1 mb-2">
-        <nav class="nav d-flex justify-content-between">
-            {% if categories %}
-                {% for cat in categories %}
-                    <a class="p-2 text-muted" href="{% url 'posts_by_category' cat.id %}">
-                        {{ cat.category_name }}
-                    </a>
-                {% endfor %}
-            {% endif %}
+    <div class="nav-scroller py-2 mb-3 border-bottom">
+        <nav class="nav d-flex justify-content-between flex-wrap">
+            {% for cat in categories %}
+                <a class="p-2 text-muted"
+                   href="{% url 'posts_by_category' cat.id %}">
+                    {{ cat.category_name }}
+                </a>
+            {% endfor %}
         </nav>
     </div>
 
-    <!-- Main Content -->
     {% block content %}
     {% endblock %}
+    
+<!-- Footer -->
+<hr>
 
-    <!-- Footer -->
-    <footer class="blog-footer mt-5">
-        <p>Django blog built with ❤️ by <a href="#">Vishal Kumar</a></p>
-    </footer>
+<footer class="blog-footer mt-5 pt-5 pb-4 bg-light">
+    <div class="row">
 
+        <!-- About -->
+        <div class="col-md-3 mb-4">
+            <h5 class="text-warning">About</h5>
+            <p class="small text-muted">
+                Django Blog App sharing news, articles, and insights across multiple categories.
+                Built with a powerful backend and clean UI.
+            </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-3 mb-4">
+            <h5 class="text-warning">Quick Links</h5>
+            <ul class="list-unstyled small">
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'search' %}?keyword=">Search</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+
+        <!-- Categories -->
+        <div class="col-md-3 mb-4">
+            <h5 class="text-warning">Categories</h5>
+            <ul class="list-unstyled small">
+                {% for cat in categories %}
+                    <li>
+                        <a href="{% url 'posts_by_category' cat.id %}">
+                            {{ cat.category_name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="col-md-3 mb-4">
+            <h5 class="text-warning">Subscribe</h5>
+            <p class="small text-muted">Get latest posts delivered to your inbox.</p>
+            <form>
+                <div class="input-group input-group-sm">
+                    <input type="email" class="form-control" placeholder="Your email">
+                    <div class="input-group-append">
+                        <button class="btn btn-warning" type="button">
+                            <i class="fa fa-envelope"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Social Icons -->
+            <div class="mt-3">
+                <a href="#" class="text-dark mr-3"><i class="fa fa-facebook"></i></a>
+                <a href="#" class="text-dark mr-3"><i class="fa fa-twitter"></i></a>
+                <a href="#" class="text-dark mr-3"><i class="fa fa-instagram"></i></a>
+                <a href="#" class="text-dark"><i class="fa fa-linkedin"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="text-center small text-muted">
+        © <span id="year"></span> Blog App | Built with ❤️ by Vishal Kumar
+    </div>
+</footer>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+    window.addEventListener("scroll", function() {
+        let header = document.querySelector(".blog-header");
+        header.classList.toggle("scrolled", window.scrollY > 10);
+    });
+</script>
+
 </body>
 </html>

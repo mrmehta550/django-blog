@@ -1,24 +1,23 @@
 
 from django.contrib import admin
-from django.urls import path,include
-from.import views
+from django.urls import include, path
+from . import views
 from django.conf.urls.static import static
 from django.conf import settings
-from blog import views as BlogsView
-
+from blogs import views as BlogsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.home, name='home'),
-    path('category/', include('blog.urls')),
-    path('blog/<slug:slug>/', BlogsView.blog, name='blog'),
-    # search endpoint
-    path('blogs/search/', BlogsView.search, name='search'),
+    path('', views.home, name='home'),
+    path('category/', include('blogs.urls')),
+    path('blogs/<slug:slug>/', BlogsView.blogs, name='blogs'),
+    path('blog/<slug:slug>/', BlogsView.blogs, name='blog'),
+    # Search endpoint
+    path('search/', BlogsView.search, name='search'),
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
 
-    # create url path for dashboard
-    path('dashboard/', include('dashboards.urls'))
-
-] +static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # Dashboards
+    path('dashboard/', include('dashboards.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

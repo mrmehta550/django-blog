@@ -2,38 +2,131 @@
 
 {% block content %}
 
-    
- {% for post in featured_posts %}
-   {% if forloop.first %}
-   <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark" style="background-image: url({{ post.featured_image.url }});background-blend-mode: overlay;background-size:cover;">
-      <div class="col-md-8 px-0">
-        <h1 class="display-4 font-italic">{{ post.title }}</h1>
-        <p class="lead my-3">{{post.short_description}}</p>
-        <p class="lead mb-0"><a href="#" class="text-white font-weight-bold">Continue reading...</a></p>
-      </div>
-   </div>
-    {% endif%} 
-  {% endfor %}
- 
-  <!-- featured posts-->
-  <h3 class="text-uppercase text-warning" style="letter-spacing: 2px;">category - {{ category }}</h3>
-  <div class="row mb-2">
-    {% if posts %}
-    {% for post in posts %}
-    <div class="col-md-6">
-      <div class="card border-0" >
-        <div class="card-body">
-          <h3>{{ post.title }}</h3>
-          <small class="mb-1 text-muted">{{ post.created_at | timesince}} ago | {{ post.author }}</small>
-          <p class="card-text">{{ post.short_description }}</p>
-        </div>
-      </div>
+<style>
+/* Hero overlay */
+.hero-overlay {
+    background: rgba(0,0,0,0.65);
+    padding: 50px;
+    border-radius: 10px;
+}
+
+/* Card Animation */
+.card {
+    transition: all 0.3s ease-in-out;
+    border-radius: 12px;
+}
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Read Button */
+.read-btn {
+    background: #ffc107;
+    color: #000;
+    padding: 6px 16px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: 0.3s;
+    text-decoration: none;
+}
+.read-btn:hover {
+    background: #000;
+    color: #ffc107;
+}
+
+/* Section Title */
+.section-title {
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin: 40px 0 25px;
+    position: relative;
+}
+.hero-overlay {
+    background: rgba(0,0,0,0.65);
+    padding: 60px 40px;
+}
+
+/* Responsive Fix */
+@media (max-width: 768px) {
+    .hero-overlay {
+        padding: 30px 20px;
+    }
+    .hero-overlay h1 {
+        font-size: 22px;
+    }
+}
+</style>
+
+
+<!-- Hero Section -->
+{% for post in featured_posts %}
+{% if forloop.first %}
+<div class="jumbotron text-white rounded"
+     style="background-image: url({{ post.featured_image.url }});
+            background-size: cover;
+            background-position: center;">
+    <div class="hero-overlay">
+        <h1 class="display-4">{{ post.title }}</h1>
+        <p class="lead">{{ post.short_description }}</p>
+        <a href="{% url 'blog' post.slug %}" class="read-btn">
+            Continue Reading →
+        </a>
     </div>
-    {% endfor %}
-    {% else %}
-    <p>No posts found</p>
-    {% endif %}
-  </div>
+</div>
+{% endif %}
+{% endfor %}
+
+
+<!-- Category Title -->
+<h3 class="section-title text-warning text-uppercase">
+    Category - {{ category }}
+</h3>
+
+
+<!-- Category Posts -->
+<div class="row">
+
+{% if posts %}
+{% for post in posts %}
+<div class="col-md-6 mb-4">
+    <div class="card border-0 shadow-sm h-100">
+        {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}" 
+             class="card-img-top"
+             style="height:200px; object-fit:cover;">
+        {% endif %}
+
+        <div class="card-body">
+            <h4>
+                <a href="{% url 'blog' post.slug %}" class="text-dark">
+                    {{ post.title }}
+                </a>
+            </h4>
+
+            <small class="text-muted">
+                {{ post.created_at|timesince }} ago • {{ post.author }}
+            </small>
+
+            <p class="mt-2">
+                {{ post.short_description|truncatewords:20 }}
+            </p>
+
+            <a href="{% url 'blog' post.slug %}" class="read-btn">
+                Read More
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="col-12 text-center mt-5">
+    <h4>No posts found in this category </h4>
+    <p class="text-muted">Try exploring other categories.</p>
+</div>
+{% endif %}
 
 </div>
+
 {% endblock %}

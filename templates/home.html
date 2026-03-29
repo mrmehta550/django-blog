@@ -2,79 +2,178 @@
 
 {% block content %}
 
+<style>
+.card {
+    border-radius: 12px;
+    transition: all 0.3s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.hero-section {
+    border-radius: 15px;
+    overflow: hidden;
+    color: white;
+    min-height: 280px;
+}
+
+.hero-overlay {
+    background: rgba(0,0,0,0.65);
+    padding: 60px 40px;
+}
+
+.read-btn {
+    background: #ffc107;
+    color: #000;
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: 0.3s;
+    display: inline-block;
+}
+.read-btn:hover {
+    background: #000;
+    color: #ffc107;
+    text-decoration: none;
+}
+
+.section-title {
+    letter-spacing: 2px;
+    font-weight: bold;
+    margin: 50px 0 25px;
+    position: relative;
+}
+.section-title::after {
+    content: "";
+    width: 70px;
+    height: 3px;
+    background: #ffc107;
+    display: block;
+    margin-top: 8px;
+}
+
+/* Responsive Fix */
+@media (max-width: 768px) {
+    .hero-overlay {
+        padding: 30px 20px;
+    }
+    .hero-overlay h1 {
+        font-size: 22px;
+    }
+}
+</style>
+
+
+<!-- HERO -->
+{% if featured_posts %}
 {% for post in featured_posts %}
-  {% if forloop.first %}
-  <div class="jumbotron p-3 p-md-5 text-white rounded bg-dark"
-       style="background-image: url({{ post.featured_image.url }});
-              background-blend-mode: overlay;
-              background-size: cover;">
-    <div class="col-md-8 px-0">
-      <h1 class="display-4 font-italic">{{ post.title }}</h1>
-      <p class="lead my-3">{{ post.short_description }}</p>
-      <p class="lead mb-0">
-        <a href="{% url 'blog' post.slug %}" class="text-white font-weight-bold">Continue reading...</a>
-      </p>
+{% if forloop.first %}
+<div class="hero-section mb-5"
+     style="background-image: url({{ post.featured_image.url }}); background-size: cover; background-position: center;">
+    <div class="hero-overlay">
+        <h1 class="display-4">{{ post.title }}</h1>
+        <p class="lead">{{ post.short_description|truncatewords:30 }}</p>
+        <a href="{% url 'blog' post.slug %}" class="read-btn">
+            Read Full Article →
+        </a>
     </div>
-  </div>
-  {% endif %}
-{% endfor %}
-
-<!-- Featured posts -->
-<h3 class="text-uppercase text-warning" style="letter-spacing: 2px;">Featured Posts</h3>
-
-<div class="row mb-2">
-  {% for post in featured_posts %}
-    {% if not forloop.first %}
-    <div class="col-md-6">
-      <div class="card border-0">
-        <div class="card-body">
-          <h3> <a href="{% url 'blog' post.slug %}">{{ post.title }}</a></h3>
-          <small class="mb-1 text-muted">
-            {{ post.created_at|timesince }} ago | {{ post.author }}
-          </small>
-          <p class="card-text">{{ post.short_description }}</p>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-  {% endfor %}
 </div>
+{% endif %}
+{% endfor %}
+{% endif %}
 
-<!-- Recent Articles -->
-<h3 class="text-uppercase text-warning" style="letter-spacing: 2px;">Recent Articles</h3>
+
+<!-- FEATURED POSTS -->
+{% if featured_posts %}
+<h3 class="section-title text-warning text-uppercase">Featured Posts</h3>
 
 <div class="row">
-  <div class="col-md-8 blog-main">
-    {% for post in posts %}
-    <div class="card border-0 mb-3">
-      <div class="card-body">
-        <h3><a href="{% url 'blog' post.slug %}">{{ post.title }}</a>{{ post.title }}</h3>
-        <small class="mb-1 text-muted">
-          {{ post.created_at|timesince }} ago | {{ post.author }}
-        </small>
-        <p class="card-text">{{ post.short_description | truncatewords:25}}</p>
-      </div>
+{% for post in featured_posts %}
+{% if not forloop.first %}
+<div class="col-12 col-sm-6 col-lg-4 mb-4">
+    <div class="card h-100 shadow-sm">
+        {% if post.featured_image %}
+        <img src="{{ post.featured_image.url }}"
+             class="card-img-top"
+             style="height:200px; object-fit:cover;">
+        {% endif %}
+        <div class="card-body">
+            <h5>
+                <a href="{% url 'blog' post.slug %}" class="text-dark">
+                    {{ post.title }}
+                </a>
+            </h5>
+            <small class="text-muted d-block mb-2">
+                {{ post.created_at|timesince }} ago • {{ post.author }}
+            </small>
+            <p>
+                {{ post.short_description|truncatewords:18 }}
+            </p>
+            <a href="{% url 'blog' post.slug %}" class="read-btn">
+                Continue Reading
+            </a>
+        </div>
     </div>
-    {% endfor %}
-  </div>
+</div>
+{% endif %}
+{% endfor %}
+</div>
+{% endif %}
 
-  <aside class="col-md-4 blog-sidebar">
-    <div class="p-3 mb-3 bg-light rounded">
-      <h4 class="font-italic">{{ about.about_heading }}</h4>
-      <p class="mb-0">{{ about.about_description }}</p>
+
+<!-- RECENT + SIDEBAR -->
+<h3 class="section-title text-warning text-uppercase">Recent Articles</h3>
+
+<div class="row">
+
+<div class="col-12 col-lg-8">
+{% for post in posts %}
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h4>
+            <a href="{% url 'blog' post.slug %}" class="text-dark">
+                {{ post.title }}
+            </a>
+        </h4>
+        <small class="text-muted d-block mb-2">
+            {{ post.created_at|timesince }} ago • {{ post.author }}
+        </small>
+        <p>
+            {{ post.short_description|truncatewords:25 }}
+        </p>
+        <a href="{% url 'blog' post.slug %}" class="read-btn">
+            Read More →
+        </a>
     </div>
-   
+</div>
+{% endfor %}
+</div>
+
+
+<aside class="col-12 col-lg-4 mt-4 mt-lg-0">
+    <div class="p-4 mb-4 bg-light rounded shadow-sm">
+        <h5>{{ about.about_heading }}</h5>
+        <p class="text-muted">{{ about.about_description }}</p>
+    </div>
+
     {% if social_links %}
-    <div class="p-3">
-      <h4 class="font-italic">Follow Us</h4>
-      <ol class="list-unstyled">
-        {% for i in social_links%}
-        <li><a href="{{ i.link }}" target="_blank">{{ i.platform }}</a></li>
-        {% endfor %}
-      </ol>
+    <div class="p-4 bg-white shadow-sm rounded">
+        <h5>Follow Us</h5>
+        <ul class="list-unstyled">
+            {% for i in social_links %}
+            <li class="mb-2">
+                <a href="{{ i.link }}" target="_blank" class="text-dark">
+                    🔗 {{ i.platform }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
     {% endif %}
-  </aside>
+</aside>
+
 </div>
 
 {% endblock %}
