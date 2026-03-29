@@ -8,6 +8,7 @@ class Category(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
+        db_table = 'blog_category'
         verbose_name_plural = 'categories'
 
     def __str__(self):
@@ -32,6 +33,9 @@ class Blog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        db_table = 'blog_blog'
+
     def __str__(self):
         return self.title
 
@@ -42,6 +46,9 @@ class Comment(models.Model):
     comment = models.TextField(max_length=250)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'blog_comment'
 
     def __str__(self):
         return self.comment
